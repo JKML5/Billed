@@ -20,6 +20,13 @@ export default class NewBill {
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
     const filePath = e.target.value.split(/\\/g)
     const fileName = filePath[filePath.length-1]
+    const fileExt = fileName.split('.').pop();
+
+    if (!['jpg', 'jpeg', 'png'].includes(fileExt)) {
+      console.error('Extension de fichier incorrect') //TODO empêcher l'ajout et afficher message d'erreur
+      return false;
+    }
+
     const formData = new FormData()
     const email = JSON.parse(localStorage.getItem("user")).email
     formData.append('file', file)
