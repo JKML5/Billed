@@ -33,6 +33,13 @@ export default class {
       .bills()
       .list()
       .then(snapshot => {
+        // Sort by date DESC
+        const sortByMapped = (map, compareFn) => (a, b) => compareFn(map(a), map(b))
+        const toDate = e => new Date(e.date).getTime()
+        const byValue = (a, b) => b - a
+        const byDate = sortByMapped(toDate, byValue)
+        snapshot.sort(byDate)
+
         const bills = snapshot
           .map(doc => {
             try {
