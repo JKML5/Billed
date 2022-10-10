@@ -72,9 +72,9 @@ export default class {
     this.document = document
     this.onNavigate = onNavigate
     this.store = store
-    $('#arrow-icon1').click((e) => this.handleShowTickets(e, bills, 1))
-    $('#arrow-icon2').click((e) => this.handleShowTickets(e, bills, 2))
-    $('#arrow-icon3').click((e) => this.handleShowTickets(e, bills, 3))
+
+    this.handleShowAllTickets(bills)
+
     new Logout({ localStorage, onNavigate })
   }
 
@@ -130,26 +130,40 @@ export default class {
     this.onNavigate(ROUTES_PATH['Dashboard'])
   }
 
-  handleShowTickets(e, bills, index) {
-    if (this.counter === undefined || this.index !== index) this.counter = 0
-    if (this.index === undefined || this.index !== index) this.index = index
-    if (this.counter % 2 === 0) {
-      $(`#arrow-icon${this.index}`).css({ transform: 'rotate(0deg)'})
-      $(`#status-bills-container${this.index}`)
-        .html(cards(filteredBills(bills, getStatus(this.index))))
-      this.counter ++
-    } else {
-      $(`#arrow-icon${this.index}`).css({ transform: 'rotate(90deg)'})
-      $(`#status-bills-container${this.index}`)
-        .html("")
-      this.counter ++
+  handleShowAllTickets(bills) {
+    if(bills.length > 0) {
+      $('#status-bills-container1').html(cards(filteredBills(bills, getStatus(1)))) // En attente
+      $('#status-bills-container2').html(cards(filteredBills(bills, getStatus(2)))) // Validé
+      $('#status-bills-container3').html(cards(filteredBills(bills, getStatus(3)))) // Refusé
+
+      bills.forEach(bill => {
+        $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills))
+      })
+  
+      const billsContainers = document.querySelectorAll('.status-bills-container')
+      billsContainers.forEach(billsContainer => billsContainer.style.display = "none")
+
+      $('#arrow-icon1').click(() => this.handleShowTickets(1))
+      $('#arrow-icon2').click(() => this.handleShowTickets(2))
+      $('#arrow-icon3').click(() => this.handleShowTickets(3))
     }
+  }
 
-    bills.forEach(bill => {
-      $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills))
-    })
+  handleShowTickets(index) {
+    const billsContainer = document.getElementById('status-bills-container' + index)
+    const arrowIcon      = document.getElementById('arrow-icon' + index)
+  
+    if (billsContainer.style.display == 'none') {
+      arrowIcon.style.transform = 'rotate(0deg)'
+      billsContainer.style.display = "block"
 
-    return bills
+    } else if (billsContainer.style.display == 'block') {
+      arrowIcon.style.transform = 'rotate(90deg)'
+      billsContainer.style.display = "none"
+
+    } else {
+      // TODO return error ?
+    }
 
   }
 
