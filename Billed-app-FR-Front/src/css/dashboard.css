@@ -34,6 +34,10 @@
   overflow-y: scroll;
 }
 
+.status-bills-container.hidden {
+  display: none;
+}
+
 .status-bills-header {
   display: flex;
   justify-content: space-between;

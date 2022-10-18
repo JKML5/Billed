@@ -2,6 +2,7 @@
  * @jest-environment jsdom
  */
 
+import '@testing-library/jest-dom'
 import {fireEvent, screen, waitFor} from "@testing-library/dom"
 import userEvent from '@testing-library/user-event'
 import DashboardFormUI from "../views/DashboardFormUI.js"
@@ -64,36 +65,46 @@ describe('Given I am connected as an Admin', () => {
       })
       document.body.innerHTML = DashboardUI({ data: { bills } })
 
-      const handleShowTickets1 = jest.fn((e) => dashboard.handleShowTickets(e, bills, 1))
-      const handleShowTickets2 = jest.fn((e) => dashboard.handleShowTickets(e, bills, 2))
-      const handleShowTickets3 = jest.fn((e) => dashboard.handleShowTickets(e, bills, 3))
-
+      const handleShowAllTickets = jest.fn((e) => dashboard.handleShowAllTickets(bills))
+      const handleShowTickets1   = jest.fn((e) => dashboard.handleShowTickets(1)) // En attente
+      const handleShowTickets2   = jest.fn((e) => dashboard.handleShowTickets(2)) // Validé
+      const handleShowTickets3 = jest.fn((e) => dashboard.handleShowTickets(3)) // Refusé
+      
       const icon1 = screen.getByTestId('arrow-icon1')
       const icon2 = screen.getByTestId('arrow-icon2')
       const icon3 = screen.getByTestId('arrow-icon3')
+      
+      handleShowAllTickets()
+
+      expect(screen.getByTestId('status-bills-container1')).toHaveClass('hidden')
+      expect(screen.getByTestId('status-bills-container2')).toHaveClass('hidden')
+      expect(screen.getByTestId('status-bills-container3')).toHaveClass('hidden')
 
       icon1.addEventListener('click', handleShowTickets1)
       userEvent.click(icon1)
       expect(handleShowTickets1).toHaveBeenCalled()
-      await waitFor(() => screen.getByTestId(`open-bill47qAXb6fIm2zOKkLzMro`) )
-      expect(screen.getByTestId(`open-bill47qAXb6fIm2zOKkLzMro`)).toBeTruthy()
+
+      handleShowTickets1()
+      expect(screen.getByTestId('status-bills-container1')).not.toHaveClass('hidden')
+
       icon2.addEventListener('click', handleShowTickets2)
       userEvent.click(icon2)
       expect(handleShowTickets2).toHaveBeenCalled()
-      await waitFor(() => screen.getByTestId(`open-billUIUZtnPQvnbFnB0ozvJh`) )
-      expect(screen.getByTestId(`open-billUIUZtnPQvnbFnB0ozvJh`)).toBeTruthy()
+
+      handleShowTickets2()
+      expect(screen.getByTestId('status-bills-container2')).not.toHaveClass('hidden')
 
       icon3.addEventListener('click', handleShowTickets3)
       userEvent.click(icon3)
       expect(handleShowTickets3).toHaveBeenCalled()
-      await waitFor(() => screen.getByTestId(`open-billBeKy5Mo4jkmdfPGYpTxZ`) )
-      expect(screen.getByTestId(`open-billBeKy5Mo4jkmdfPGYpTxZ`)).toBeTruthy()
+
+      handleShowTickets3()
+      expect(screen.getByTestId('status-bills-container3')).not.toHaveClass('hidden')
     })
   })
 
   describe('When I am on Dashboard page and I click on edit icon of a card', () => {
     test('Then, right form should be filled',  () => {
-
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname })
       }
@@ -107,12 +118,17 @@ describe('Given I am connected as an Admin', () => {
         document, onNavigate, store: null, bills:bills, localStorage: window.localStorage
       })
       document.body.innerHTML = DashboardUI({ data: { bills } })
-      const handleShowTickets1 = jest.fn((e) => dashboard.handleShowTickets(e, bills, 1))
+
+      const handleShowAllTickets = jest.fn((e) => dashboard.handleShowAllTickets(bills))
+      const handleShowTickets1 = jest.fn((e) => dashboard.handleShowTickets(1))
+      handleShowAllTickets()
+
       const icon1 = screen.getByTestId('arrow-icon1')
       icon1.addEventListener('click', handleShowTickets1)
       userEvent.click(icon1)
       expect(handleShowTickets1).toHaveBeenCalled()
-      expect(screen.getByTestId(`open-bill47qAXb6fIm2zOKkLzMro`)).toBeTruthy()
+
+      expect(screen.getByTestId(`open-bill47qAXb6fIm2zOKkLzMro`)).toBeTruthy() // TODO JK
       const iconEdit = screen.getByTestId('open-bill47qAXb6fIm2zOKkLzMro')
       userEvent.click(iconEdit)
       expect(screen.getByTestId(`dashboard-form`)).toBeTruthy()
@@ -136,7 +152,11 @@ describe('Given I am connected as an Admin', () => {
       })
       document.body.innerHTML = DashboardUI({ data: { bills } })
 
-      const handleShowTickets1 = jest.fn((e) => dashboard.handleShowTickets(e, bills, 1))
+      const handleShowAllTickets = jest.fn((e) => dashboard.handleShowAllTickets(bills))
+      const handleShowTickets1 = jest.fn((e) => dashboard.handleShowTickets(1))
+
+      handleShowAllTickets()
+
       const icon1 = screen.getByTestId('arrow-icon1')
       icon1.addEventListener('click', handleShowTickets1)
       userEvent.click(icon1)
@@ -274,6 +294,7 @@ describe("Given I am a user connected as Admin", () => {
       document.body.appendChild(root)
       router()
     })
+
     test("fetches bills from an API and fails with 404 message error", async () => {
 
       mockStore.bills.mockImplementationOnce(() => {

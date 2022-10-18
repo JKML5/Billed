@@ -141,7 +141,7 @@ export default class {
       })
   
       const billsContainers = document.querySelectorAll('.status-bills-container')
-      billsContainers.forEach(billsContainer => billsContainer.style.display = "none")
+      billsContainers.forEach(billsContainer => billsContainer.classList.add('hidden'))
 
       $('#arrow-icon1').click(() => this.handleShowTickets(1))
       $('#arrow-icon2').click(() => this.handleShowTickets(2))
@@ -153,18 +153,14 @@ export default class {
     const billsContainer = document.getElementById('status-bills-container' + index)
     const arrowIcon      = document.getElementById('arrow-icon' + index)
   
-    if (billsContainer.style.display == 'none') {
+    if (billsContainer.classList.contains('hidden')) {
       arrowIcon.style.transform = 'rotate(0deg)'
-      billsContainer.style.display = "block"
-
-    } else if (billsContainer.style.display == 'block') {
-      arrowIcon.style.transform = 'rotate(90deg)'
-      billsContainer.style.display = "none"
+      billsContainer.classList.remove('hidden');
 
     } else {
-      // TODO return error ?
+      arrowIcon.style.transform = 'rotate(90deg)'
+      billsContainer.classList.add('hidden');
     }
-
   }
 
   getBillsAllUsers = () => {
