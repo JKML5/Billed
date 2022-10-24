@@ -11,8 +11,7 @@
 .col-half-row {
   display:flex;
   width: 75%;
-  margin-left: 20px;
-  margin-top: 16px;
+  margin: 16px auto 0 auto;
 }
 
 .blue-border {
@@ -31,6 +30,9 @@ label {
 
 .flex-col {
   margin-left: 50px;
+}
+.flex-col:first-child {
+  margin-left: 0;
 }
 
 .white-text {
