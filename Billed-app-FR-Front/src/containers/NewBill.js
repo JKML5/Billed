@@ -14,7 +14,15 @@ export default class NewBill {
     this.fileName = null
     this.billId = null
     new Logout({ document, localStorage, onNavigate })
+
+    let user;
+    user = JSON.parse(localStorage.getItem('user'))
+    if (typeof user === 'string') {
+      user = JSON.parse(user)
+    }
+    this.user = user
   }
+
   handleChangeFile = e => {
     e.preventDefault()
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
@@ -22,13 +30,19 @@ export default class NewBill {
     const fileName = filePath[filePath.length-1]
     const fileExt = fileName.split('.').pop();
 
+    // console.log(fileName)
+    // console.log(fileExt)
+
+    const errorMessage = this.document.querySelector(`[data-testid="file-error-message"]`)
     if (!['jpg', 'jpeg', 'png'].includes(fileExt)) {
-      console.error('Extension de fichier incorrect') //TODO empêcher l'ajout et afficher message d'erreur
+      errorMessage.innerText = 'Extension de fichier incorrect'
       return false;
+    } else {
+      errorMessage.innerText = ''
     }
 
     const formData = new FormData()
-    const email = JSON.parse(localStorage.getItem("user")).email
+    const email = this.user.email
     formData.append('file', file)
     formData.append('email', email)
 
@@ -47,12 +61,12 @@ export default class NewBill {
         this.fileName = fileName
       }).catch(error => console.error(error))
   }
+
   handleSubmit = e => {
     e.preventDefault()
-    console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
-    const email = JSON.parse(localStorage.getItem("user")).email
+    
     const bill = {
-      email,
+      email: this.user.email,
       type: e.target.querySelector(`select[data-testid="expense-type"]`).value,
       name:  e.target.querySelector(`input[data-testid="expense-name"]`).value,
       amount: parseInt(e.target.querySelector(`input[data-testid="amount"]`).value),
@@ -64,8 +78,11 @@ export default class NewBill {
       fileName: this.fileName,
       status: 'pending'
     }
-    this.updateBill(bill)
-    this.onNavigate(ROUTES_PATH['Bills'])
+
+    if(this.fileName != null) {
+      this.updateBill(bill)
+      this.onNavigate(ROUTES_PATH['Bills'])
+    }
   }
 
   // not need to cover this function by tests
