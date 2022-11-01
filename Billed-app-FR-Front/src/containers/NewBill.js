@@ -25,20 +25,20 @@ export default class NewBill {
 
   handleChangeFile = e => {
     e.preventDefault()
-    const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
-    const filePath = e.target.value.split(/\\/g)
-    const fileName = filePath[filePath.length-1]
-    const fileExt = fileName.split('.').pop();
-
-    // console.log(fileName)
-    // console.log(fileExt)
+    const file =  e.target.files[0]
+    const fileName = e.target.files[0].name
 
     const errorMessage = this.document.querySelector(`[data-testid="file-error-message"]`)
-    if (!['jpg', 'jpeg', 'png'].includes(fileExt)) {
-      errorMessage.innerText = 'Extension de fichier incorrect'
+
+    try {
+      if (this.validFileName(fileName)) {
+        errorMessage.innerText = ''
+      } else {
+        throw "Extension de fichier incorrect";
+      }
+    } catch (error) {
+      errorMessage.innerText = error
       return false;
-    } else {
-      errorMessage.innerText = ''
     }
 
     const formData = new FormData()
@@ -54,23 +54,29 @@ export default class NewBill {
           noContentType: true
         }
       })
-      .then(({fileUrl, key}) => {
-        console.log(fileUrl)
+      .then(({ fileUrl, key }) => {
         this.billId = key
         this.fileUrl = fileUrl
         this.fileName = fileName
-      }).catch(error => console.error(error))
+      })
+      .catch(error => console.error(error))
+  }
+
+  validFileName = fileName => {
+    const fileExt = fileName.split('.').pop();
+
+    return (['jpg', 'jpeg', 'png'].includes(fileExt))
   }
 
   handleSubmit = e => {
     e.preventDefault()
-    
+
     const bill = {
       email: this.user.email,
       type: e.target.querySelector(`select[data-testid="expense-type"]`).value,
-      name:  e.target.querySelector(`input[data-testid="expense-name"]`).value,
+      name: e.target.querySelector(`input[data-testid="expense-name"]`).value,
       amount: parseInt(e.target.querySelector(`input[data-testid="amount"]`).value),
-      date:  e.target.querySelector(`input[data-testid="datepicker"]`).value,
+      date: e.target.querySelector(`input[data-testid="datepicker"]`).value,
       vat: e.target.querySelector(`input[data-testid="vat"]`).value,
       pct: parseInt(e.target.querySelector(`input[data-testid="pct"]`).value) || 20,
       commentary: e.target.querySelector(`textarea[data-testid="commentary"]`).value,

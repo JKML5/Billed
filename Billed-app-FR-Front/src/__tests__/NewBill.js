@@ -9,29 +9,30 @@ import NewBillUI from "../views/NewBillUI.js"
 import NewBill from "../containers/NewBill.js"
 import { localStorageMock } from "../__mocks__/localStorage.js";
 import mockStore from "../__mocks__/store"
-import { ROUTES, ROUTES_PATH} from "../constants/routes.js";
-import router from '../app/Router.js'
+import { ROUTES } from "../constants/routes.js";
 
 describe("Given I am connected as an employee", () => {
-  Object.defineProperty(window, 'localStorage', { value: localStorageMock })
-  window.localStorage.setItem('user', JSON.stringify({ type: 'Employee', email: 'test@test.com' }))
-  const html = NewBillUI()
-  document.body.innerHTML = html
-  const onNavigate = (pathname) => { document.body.innerHTML = ROUTES({ pathname }) }
-  const newBill = new NewBill({ document, onNavigate, store: mockStore, localStorage: window.localStorage })
-
   describe("When I am on NewBill Page", () => {
     it('should work only for employees', () => {
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({ type: 'Employee', email: 'test@test.com' }))
+      document.body.innerHTML = NewBillUI()
+      
       const user = JSON.parse(JSON.parse(window.localStorage.getItem('user'))) // "{\"type\":\"Employee\"}"
       expect(user.type).toBe('Employee')
     })
 
     describe("When I upload a file", () => {
-      const handleChangeFile = jest.fn(() => newBill.handleChangeFile)
-      const inputFile = screen.getByTestId('file')
-      inputFile.addEventListener('change', handleChangeFile())
-
       it('should display error message if file type incorrect', () => {
+        Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+        window.localStorage.setItem('user', JSON.stringify({ type: 'Employee', email: 'test@test.com' }))
+        document.body.innerHTML = NewBillUI()
+        const onNavigate = (pathname) => { document.body.innerHTML = ROUTES({ pathname }) }
+        const newBill = new NewBill({ document, onNavigate, store: mockStore, localStorage: window.localStorage })
+
+        const handleChangeFile = jest.fn(() => newBill.handleChangeFile)
+        const inputFile = screen.getByTestId('file')
+        inputFile.addEventListener('change', handleChangeFile())
         const wrongFile = new File(["foo"], "foo.txt", { type: "text/plain" });
         userEvent.upload(inputFile, wrongFile)
         
@@ -39,23 +40,34 @@ describe("Given I am connected as an employee", () => {
         expect(screen.getByTestId('file-error-message').innerText).toBe('Extension de fichier incorrect')
       })
 
-      it('should display error message if no file', () => {
-        // TODO Déjà géré par les navigateurs récents
-      })
-
       it('should upload if ok', () => {
+        Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+        window.localStorage.setItem('user', JSON.stringify({ type: 'Employee', email: 'test@test.com' }))
+        document.body.innerHTML = NewBillUI()
+        const onNavigate = (pathname) => { document.body.innerHTML = ROUTES({ pathname }) }
+        const newBill = new NewBill({ document, onNavigate, store: mockStore, localStorage: window.localStorage })
 
+        const handleChangeFile = jest.fn(() => newBill.handleChangeFile)
+        const inputFile = screen.getByTestId('file')
+
+        inputFile.addEventListener('change', handleChangeFile())
         const goodFile = new File(["foo"], "foo.jpg", { type: "image/jpeg" });
         userEvent.upload(inputFile, goodFile)
 
         expect(handleChangeFile).toHaveBeenCalled()
-        // expect(screen.getByTestId('file-error-message').innerText).toBe('') // TODO marche pas
+        expect(screen.getByTestId('file-error-message').innerText).toBe('') // TODO marche pas
         expect(inputFile.files[0].name).toBe('foo.jpg')
       })
     })
 
     describe("When I click on submit button", () => {
       it('should create a bill', () => {
+        Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+        window.localStorage.setItem('user', JSON.stringify({ type: 'Employee', email: 'test@test.com' }))
+        document.body.innerHTML = NewBillUI()
+        const onNavigate = (pathname) => { document.body.innerHTML = ROUTES({ pathname }) }
+        const newBill = new NewBill({ document, onNavigate, store: mockStore, localStorage: window.localStorage })
+
         const handleSubmit = jest.fn(() => newBill.handleSubmit)
         const form = screen.getByTestId('form-new-bill')
         form.addEventListener('submit', handleSubmit)
