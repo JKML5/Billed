@@ -55,21 +55,20 @@ describe("Given I am connected as an employee", () => {
         const onNavigate = (pathname) => { document.body.innerHTML = ROUTES({ pathname }) }
         document.body.innerHTML = BillsUI({ data: bills })
         const billsContainer = new Bills({ document, onNavigate, store: mockStore, localStorage: window.localStorage })
-
-        // On vérifie que la fonction est bien lancée au clic
-        const handleClickIconEye = jest.fn((eyeIcon) => billsContainer.handleClickIconEye(eyeIcon))
-        $.fn.modal = jest.fn() // fonction modale
         const eyeIcon = screen.getByTestId('icon-eye47qAXb6fIm2zOKkLzMro')
-        eyeIcon.addEventListener("click", handleClickIconEye(eyeIcon))
-  
+        $.fn.modal = jest.fn() // fonction modale
+
+        const handleClickIconEye = jest.fn(billsContainer.handleClickIconEye(eyeIcon))
+
+        eyeIcon.addEventListener("click", handleClickIconEye)
+
         userEvent.click(eyeIcon)
 
+        // Check appel de la fonction au clic
         expect(handleClickIconEye).toHaveBeenCalled()
 
-        //TODO Vérifier que la modale est bien appelée
-        const modale = screen.getByTestId('modaleFile')
-        // expect(modale).toHaveClass('show')
-
+        // Check ouverture modale
+        expect(screen.queryByAltText('Bill')).not.toBeNull()
       })
     })
 
